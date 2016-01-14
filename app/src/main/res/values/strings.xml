@@ -32,10 +32,13 @@
     <string name="dialog_settings_title">Ajustes</string>
 
     <!-- Email sending parameters -->
-    <string name="email_address">Transappsantiagochile@gmail</string>
-    <string name="email_password">isci2015transporte</string>
+    <!--<string name="email_address">Transappsantiagochile@gmail.com</string>
+    <string name="email_password">isci2015transporte</string>-->
+    <string name="email_sender_address">elpelucatestea</string>
+    <string name="email_recipient_address">elpelucatestea@gmail.com</string>
+    <string name="email_password">testingpasswordandshit</string>
     <string name="email_subject">Log de Actividades</string>
-    <string name="email_body">Holi</string>
+    <string name="email_body">Mensaje enviado desde aplicación %1$s. Se incluye el log de actividades</string>
 
     <!-- Activity detection strings -->
     <string name="in_vehicle" translatable="false">In a vehicle</string>

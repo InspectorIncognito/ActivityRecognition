@@ -21,6 +21,7 @@ import android.widget.TextView;
 import java.io.File;
 import java.io.IOException;
 
+import api.activity.activityrecognition.email.AutomaticEmailer;
 import api.activity.activityrecognition.services.DetectionService;
 import api.activity.activityrecognition.services.UserInputIntentService;
 import api.activity.activityrecognition.utils.Constants;
@@ -73,6 +74,7 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 finish();
+                //System.exit(0);
             }
         });
 
@@ -116,8 +118,11 @@ public class MainActivity extends AppCompatActivity {
         sendByEmailButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                finish();
-                System.exit(0);
+                AutomaticEmailer.sendEmail(
+                        MainActivity.this,
+                        getString(R.string.email_sender_address),
+                        getString(R.string.email_password)
+                );
             }
         });
 

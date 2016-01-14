@@ -25,4 +25,6 @@ dependencies {
     compile 'com.android.support:appcompat-v7:23.1.1'
     compile 'com.google.android.gms:play-services-location:8.4.0'
     compile files('libs/activation.jar')
+    compile files('libs/javax.mail.jar')
+    compile files('libs/mail.jar')
 }
