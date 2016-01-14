@@ -1,16 +1,13 @@
 package api.activity.activityrecognition;
 
-import android.app.Activity;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.net.Uri;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
-import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageButton;
@@ -21,7 +18,7 @@ import android.widget.TextView;
 import java.io.File;
 import java.io.IOException;
 
-import api.activity.activityrecognition.email.AutomaticEmailer;
+import api.activity.activityrecognition.email.AutomaticEmailSender;
 import api.activity.activityrecognition.services.DetectionService;
 import api.activity.activityrecognition.services.UserInputIntentService;
 import api.activity.activityrecognition.utils.Constants;
@@ -29,10 +26,8 @@ import api.activity.activityrecognition.utils.Functions;
 
 public class MainActivity extends AppCompatActivity {
 
-    private int selectedInterval;
-    private String logName;
-    private File logFile;
-    private UpdateReceiver updateReceiver;
+    //private int selectedInterval;
+    //private UpdateReceiver updateReceiver;
     private Intent measurementService;
 
     @Override
@@ -40,7 +35,7 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        selectedInterval = -1;
+        //selectedInterval = -1;
 
         /* opens the settings dialog */
         ImageButton settingsButton = (ImageButton) findViewById(R.id.settingsButton);
@@ -118,7 +113,7 @@ public class MainActivity extends AppCompatActivity {
         sendByEmailButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AutomaticEmailer.sendEmail(
+                AutomaticEmailSender.sendEmail(
                         MainActivity.this,
                         getString(R.string.email_sender_address),
                         getString(R.string.email_password)
@@ -167,26 +162,16 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
-        logName = getString(R.string.activity_log_filename);
-        logFile = new File(getFilesDir(), logName);
-
-        try {
-            if(logFile.exists() && logFile.isFile()){
-                logFile.delete();
-                logFile.createNewFile();
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        /* updates the UI whenever an activity change occurs */
-        updateReceiver = new UpdateReceiver(this);
+        /* updates the UI whenever an activity change occurs
+        * NOT USED FOR NOW*/
+        /*updateReceiver = new UpdateReceiver(this);
         LocalBroadcastManager.getInstance(this)
-                .registerReceiver(updateReceiver, new IntentFilter(Constants.BROADCAST_ACTIVITY_UPDATE));
+                .registerReceiver(updateReceiver, new IntentFilter(Constants.BROADCAST_ACTIVITY_UPDATE));*/
     }
 
-    /* broadcast receiver used to receive notifications about activity changes detected */
-    private static class UpdateReceiver extends BroadcastReceiver {
+    /* broadcast receiver used to receive notifications about activity changes detected
+    * NOT USED FOR NOW*/
+    /*private static class UpdateReceiver extends BroadcastReceiver {
 
         private MainActivity mainActivity;
 
@@ -201,19 +186,19 @@ public class MainActivity extends AppCompatActivity {
             int activityType = bundle.getInt("most_probable");
             mainActivity.changeText(activityType);
         }
-    }
+    }*/
 
     @Override
     public void onDestroy(){
         super.onDestroy();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(updateReceiver);
+        //LocalBroadcastManager.getInstance(this).unregisterReceiver(updateReceiver);
         stopService(measurementService);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
-        LocalBroadcastManager.getInstance(this).unregisterReceiver(updateReceiver);
+        //LocalBroadcastManager.getInstance(this).unregisterReceiver(updateReceiver);
         stopService(measurementService);
     }
 

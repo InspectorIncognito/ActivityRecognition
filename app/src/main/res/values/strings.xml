@@ -5,14 +5,19 @@
     <string name="navigation_drawer_open">Open navigation drawer</string>
     <string name="navigation_drawer_close">Close navigation drawer</string>
 
+    <!-- Server related strings -->
+    <string name="server_address">http://127.0.0.1:8000</string>
+    <string name="server_file_destination">/android/receiveFile/</string>
+
     <!-- Misc strings -->
     <string name="activity_log_filename">ActivityLog</string>
     <string name="activity_log_base_text">User indicated current activity: %1$s</string>
     <string name="activity_log_error">Error: No available data</string>
-    <string name="server_address">http://127.0.0.1:8000</string>
-    <string name="server_file_destination">/android/receiveFile/</string>
 
-    <!--UI String values-->
+    <!-- Error/Warning strings -->
+    <string name="warn_no_location_found">No valid location detected</string>
+
+    <!--GUI String values-->
     <string name="action_settings">Settings</string>
     <string name="app_title">Medidor de actividades</string>
     <string name="placeholder_activity">Ingrese su actividad actual</string>
@@ -51,7 +56,7 @@
     <string name="walking" translatable="false">Walking</string>
     <string name="unidentifiable_activity" translatable="false">Unidentifiable activity: %1$d</string>
 
-    <!-- values (in spanish) used by the UI TextView to indicate current detected activity -->
+    <!-- values (in spanish) used by the GUI TextView to indicate current detected activity -->
     <string name="ES_in_vehicle" translatable="false">en un vehículo</string>
     <string name="ES_on_bicycle" translatable="false">en bicicleta</string>
     <string name="ES_on_foot" translatable="false">a pie</string>

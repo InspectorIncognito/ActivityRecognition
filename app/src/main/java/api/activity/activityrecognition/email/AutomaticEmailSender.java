@@ -25,7 +25,7 @@ import javax.mail.internet.MimeMultipart;
 
 import api.activity.activityrecognition.R;
 
-public class AutomaticEmailer {
+public class AutomaticEmailSender {
 
     public static void sendEmail(final Context context, final String username, final String password) {
         class SendEmailAsyncTask extends AsyncTask<Void, Integer, String> {
@@ -65,9 +65,10 @@ public class AutomaticEmailer {
                     message.setSubject(context.getString(R.string.email_subject));
                     //message.setText(context.getString(R.string.email_body));
 
-                    /* add attachment to the email */
+                    /* settings the body of the email*/
                     Multipart multipart = new MimeMultipart();
 
+                    /* body text */
                     MimeBodyPart messageBodyPart = new MimeBodyPart();
                     String file = context.getFilesDir() + File.separator + context.getString(R.string.activity_log_filename);
                     String fileName = context.getString(R.string.activity_log_filename);
@@ -76,11 +77,11 @@ public class AutomaticEmailer {
                             context.getString(R.string.app_name));
                     DataSource source = new FileDataSource(file);
 
-                    //messageBodyPart.setFileName(fileName + ".txt");
                     messageBodyPart.setText(body);
                     messageBodyPart.setContent(body, "text/html");
                     multipart.addBodyPart(messageBodyPart);
 
+                    /* attachments */
                     messageBodyPart = new MimeBodyPart();
                     messageBodyPart.setDataHandler(new DataHandler(source));
                     messageBodyPart.setFileName(fileName + ".txt");
@@ -89,12 +90,20 @@ public class AutomaticEmailer {
 
                     message.setContent(multipart);
 
+                    /* sending the email via authenticated transport */
                     Transport transport = session.getTransport("smtps");
                     transport.connect(host, username, password);
                     transport.sendMessage(message, message.getAllRecipients());
                     transport.close();
 
+                    /* recreating the log file after sending it */
+                    File temp = new File(file);
+                    temp.delete();
+                    temp.createNewFile();
+
                 } catch (MessagingException e) {
+                    e.printStackTrace();
+                } catch (IOException e) {
                     e.printStackTrace();
                 }
 
