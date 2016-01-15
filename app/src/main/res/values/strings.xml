@@ -14,8 +14,17 @@
     <string name="activity_log_base_text">User indicated current activity: %1$s</string>
     <string name="activity_log_error">Error: No available data</string>
 
+    <!-- Info strings -->
+    <string name="info_dialog_message">Por favor espere mientras la aplicación se cierra</string>
+
     <!-- Error/Warning strings -->
     <string name="warn_no_location_found">No valid location detected</string>
+    <string name="warn_dialog_title">Warning</string>
+    <string name="warn_dialog_title_ES">Advertencia</string>
+    <string name="error_no_network_available">No networks available</string>
+    <string name="error_not_connected_wifi">Not connected to any WiFi network</string>
+    <string name="error_no_network_available_ES">No se han encontrado redes disponibles</string>
+    <string name="error_not_connected_wifi_ES">No estás conectado a ninguna red WiFi</string>
 
     <!--GUI String values-->
     <string name="action_settings">Settings</string>
@@ -24,7 +33,7 @@
     <string name="text_button_send">Enviar</string>
     <string name="text_button_save">Guardar</string>
     <string name="text_button_settings">Ajustes</string>
-    <string name="text_button_exit">Cerrar aplicación</string>
+    <string name="text_button_exit">Terminar Servicio</string>
     <string name="text_activity_display">Actualmente te encuentras %1$s</string>
     <string name="radio_description_still">Detenido</string>
     <string name="radio_description_walking">Caminando</string>
@@ -39,9 +48,9 @@
     <!-- Email sending parameters -->
     <!--<string name="email_address">Transappsantiagochile@gmail.com</string>
     <string name="email_password">isci2015transporte</string>-->
-    <string name="email_sender_address">elpelucatestea</string>
-    <string name="email_recipient_address">elpelucatestea@gmail.com</string>
-    <string name="email_password">testingpasswordandshit</string>
+    <string name="email_sender_address">testing.transapp</string>
+    <string name="email_recipient_address">testing.transapp@gmail.com</string>
+    <string name="email_password">testingpass</string>
     <string name="email_subject">Log de Actividades</string>
     <string name="email_body">Mensaje enviado desde aplicación %1$s. Se incluye el log de actividades</string>
 
@@ -57,13 +66,13 @@
     <string name="unidentifiable_activity" translatable="false">Unidentifiable activity: %1$d</string>
 
     <!-- values (in spanish) used by the GUI TextView to indicate current detected activity -->
-    <string name="ES_in_vehicle" translatable="false">en un vehículo</string>
-    <string name="ES_on_bicycle" translatable="false">en bicicleta</string>
-    <string name="ES_on_foot" translatable="false">a pie</string>
-    <string name="ES_running" translatable="false">corriendo</string>
-    <string name="ES_still" translatable="false">quieto</string>
-    <string name="ES_tilting" translatable="false">en transición</string>
-    <string name="ES_unknown" translatable="false">haciendo algo (?)</string>
-    <string name="ES_walking" translatable="false">caminando</string>
-    <string name="ES_unidentifiable_activity" translatable="false">Actividad no identificada: %1$d</string>
+    <string name="in_vehicle_ES" translatable="false">en un vehículo</string>
+    <string name="on_bicycle_ES" translatable="false">en bicicleta</string>
+    <string name="on_foot_ES" translatable="false">a pie</string>
+    <string name="running_ES" translatable="false">corriendo</string>
+    <string name="still_ES" translatable="false">quieto</string>
+    <string name="tilting_ES" translatable="false">en transición</string>
+    <string name="unknown_ES" translatable="false">haciendo algo (?)</string>
+    <string name="walking_ES" translatable="false">caminando</string>
+    <string name="unidentifiable_activity_ES" translatable="false">Actividad no identificada: %1$d</string>
 </resources>

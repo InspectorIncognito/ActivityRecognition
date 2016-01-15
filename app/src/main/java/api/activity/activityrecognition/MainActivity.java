@@ -1,10 +1,6 @@
 package api.activity.activityrecognition;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
-import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -16,29 +12,37 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import java.io.File;
-import java.io.IOException;
 
 import api.activity.activityrecognition.email.AutomaticEmailSender;
 import api.activity.activityrecognition.services.DetectionService;
 import api.activity.activityrecognition.services.UserInputIntentService;
-import api.activity.activityrecognition.utils.Constants;
 import api.activity.activityrecognition.utils.Functions;
 
 public class MainActivity extends AppCompatActivity {
 
     //private int selectedInterval;
     //private UpdateReceiver updateReceiver;
+    private boolean wasLogSent;
     private Intent measurementService;
+    private Button saveButton;
+    private Button sendByEmailButton;
+    private Button exitButton;
+    private ImageButton settingsButton;
+    private TextView activityText;
+    private EditText customActivityText;
+    private RadioButton otherRadioButton;
+    private RadioGroup radioGroup;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
+        wasLogSent = false;
 
         //selectedInterval = -1;
 
         /* opens the settings dialog */
-        ImageButton settingsButton = (ImageButton) findViewById(R.id.settingsButton);
+        settingsButton = (ImageButton) findViewById(R.id.settingsButton);
         /*settingsButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
@@ -54,54 +58,49 @@ public class MainActivity extends AppCompatActivity {
         settingsButton.setVisibility(View.GONE);
 
         /* disabled temporarily for screen space issues */
-        final TextView activityText = (TextView) findViewById(R.id.currentActivityTextView);
+        activityText = (TextView) findViewById(R.id.currentActivityTextView);
         activityText.setEnabled(false);
         activityText.setFocusable(false);
         activityText.setVisibility(View.GONE);
 
-        /* starts the detection service */
-        measurementService = new Intent(this, DetectionService.class);
-        startService(measurementService);
-
         /* closes the application, killing its background processes */
-        Button exitButton = (Button) findViewById(R.id.exitAppButton);
+        exitButton = (Button) findViewById(R.id.exitAppButton);
         exitButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                stopService(measurementService);
+                cleanUp();
                 finish();
-                //System.exit(0);
             }
         });
 
         /* textfield for custom activity input */
-        EditText customActivityText = (EditText) findViewById(R.id.customActivityText);
+        customActivityText = (EditText) findViewById(R.id.customActivityText);
         customActivityText.setEnabled(false);
         customActivityText.setFocusable(false);
 
-        /* default text for activity textview */
-        changeText(4);
-
         /* radiobutton listener for custom activity */
-        RadioButton otherRadioButton = (RadioButton) findViewById(R.id.otherRadioButton);
+        otherRadioButton = (RadioButton) findViewById(R.id.otherRadioButton);
         otherRadioButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                EditText customActivityText = (EditText) findViewById(R.id.customActivityText);
+                customActivityText = (EditText) findViewById(R.id.customActivityText);
                 customActivityText.setEnabled(true);
                 customActivityText.setFocusable(true);
-                /*this part has a bug.
+                /*this part has a bug, because disabling the EditText will cause it to
+                lose the softkeyboard binding
                 it's solved by calling the function below */
                 customActivityText.setFocusableInTouchMode(true);
             }
         });
 
         /* radiogroup listener for fixed activities */
-        RadioGroup radioGroup = (RadioGroup) findViewById(R.id.activityRadioGroup);
+        radioGroup = (RadioGroup) findViewById(R.id.activityRadioGroup);
         radioGroup.setOnCheckedChangeListener(new RadioGroup.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(RadioGroup group, int checkedId) {
-                if(group.getCheckedRadioButtonId() != R.id.otherRadioButton){
-                    EditText customActivityText = (EditText) findViewById(R.id.customActivityText);
+                if (group.getCheckedRadioButtonId() != R.id.otherRadioButton) {
+                    customActivityText = (EditText) findViewById(R.id.customActivityText);
                     customActivityText.setEnabled(false);
                     customActivityText.setFocusable(false);
                 }
@@ -109,20 +108,22 @@ public class MainActivity extends AppCompatActivity {
         });
 
         /* send the activity log file to an email */
-        Button sendByEmailButton = (Button) findViewById(R.id.sendByEmailButton);
+        sendByEmailButton = (Button) findViewById(R.id.sendByEmailButton);
         sendByEmailButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 AutomaticEmailSender.sendEmail(
                         MainActivity.this,
                         getString(R.string.email_sender_address),
-                        getString(R.string.email_password)
+                        getString(R.string.email_password),
+                        false
                 );
+                wasLogSent = true;
             }
         });
 
         /* saves the user input regarding current activity */
-        Button saveButton = (Button) findViewById(R.id.saveButton);
+        saveButton = (Button) findViewById(R.id.saveButton);
         saveButton.setOnClickListener(new View.OnClickListener() {
 
             private String activity;
@@ -130,8 +131,6 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onClick(View v) {
-                EditText customActivityText = (EditText) findViewById(R.id.customActivityText);
-                RadioGroup radioGroup = (RadioGroup) findViewById(R.id.activityRadioGroup);
                 int selected = radioGroup.getCheckedRadioButtonId();
 
                 switch(selected){
@@ -162,6 +161,13 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        /* default text for activity textview */
+        changeText(4);
+
+        /* starts the detection service */
+        measurementService = new Intent(this, DetectionService.class);
+        startService(measurementService);
+
         /* updates the UI whenever an activity change occurs
         * NOT USED FOR NOW*/
         /*updateReceiver = new UpdateReceiver(this);
@@ -188,23 +194,32 @@ public class MainActivity extends AppCompatActivity {
         }
     }*/
 
+    /* sends the remaining log file when the app terminates */
+    private void cleanUp(){
+        File f = new File(getFilesDir() + File.separator + getString(R.string.activity_log_filename));
+
+        if(wasLogSent && f.exists() && f.length() != 0){
+            f.delete();
+        }
+    }
+
     @Override
     public void onDestroy(){
         super.onDestroy();
         //LocalBroadcastManager.getInstance(this).unregisterReceiver(updateReceiver);
-        stopService(measurementService);
+        //stopService(measurementService);
     }
 
     @Override
     protected void onStop() {
         super.onStop();
         //LocalBroadcastManager.getInstance(this).unregisterReceiver(updateReceiver);
-        stopService(measurementService);
+        //stopService(measurementService);
+        //cleanUp();
     }
 
     /* changes the text of the activityText TextView to reflect changes in activity */
     public void changeText(int activityType){
-        TextView activityText = (TextView) findViewById(R.id.currentActivityTextView);
         activityText.setText(getString(R.string.text_activity_display,
                 Functions.getActivityStringInSpanish(this, activityType)));
     }

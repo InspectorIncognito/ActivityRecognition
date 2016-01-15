@@ -39,23 +39,23 @@ public class Functions {
         Resources resources = context.getResources();
         switch(detectedActivityType) {
             case DetectedActivity.IN_VEHICLE:
-                return resources.getString(R.string.ES_in_vehicle);
+                return resources.getString(R.string.in_vehicle_ES);
             case DetectedActivity.ON_BICYCLE:
-                return resources.getString(R.string.ES_on_bicycle);
+                return resources.getString(R.string.on_bicycle_ES);
             case DetectedActivity.ON_FOOT:
-                return resources.getString(R.string.ES_on_foot);
+                return resources.getString(R.string.on_foot_ES);
             case DetectedActivity.RUNNING:
-                return resources.getString(R.string.ES_running);
+                return resources.getString(R.string.running_ES);
             case DetectedActivity.STILL:
-                return resources.getString(R.string.ES_still);
+                return resources.getString(R.string.still_ES);
             case DetectedActivity.TILTING:
-                return resources.getString(R.string.ES_tilting);
+                return resources.getString(R.string.tilting_ES);
             case DetectedActivity.UNKNOWN:
-                return resources.getString(R.string.ES_unknown);
+                return resources.getString(R.string.unknown_ES);
             case DetectedActivity.WALKING:
-                return resources.getString(R.string.ES_walking);
+                return resources.getString(R.string.walking_ES);
             default:
-                return resources.getString(R.string.ES_unidentifiable_activity, detectedActivityType);
+                return resources.getString(R.string.unidentifiable_activity_ES, detectedActivityType);
         }
     }
 

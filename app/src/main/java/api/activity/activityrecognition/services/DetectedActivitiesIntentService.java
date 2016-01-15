@@ -43,6 +43,11 @@ public class DetectedActivitiesIntentService extends IntentService {
         Log.e(TAG, "--------------------begin measurement--------------------");
 
         try {
+            File f = new File(getFilesDir() + File.separator + logName);
+
+            if(!f.exists() || !f.isFile())
+                f.createNewFile();
+
             StringBuilder sb = new StringBuilder();
 
             /* Log format:
@@ -59,7 +64,7 @@ public class DetectedActivitiesIntentService extends IntentService {
 
                 for (DetectedActivity da : activityResult.getProbableActivities()) {
                     sb.append(Functions.getActivityString(this, da.getType()));
-                    sb.append(Constants.HYPHEN);
+                    sb.append(Constants.COMMA);
                     sb.append(da.getConfidence());
                     sb.append(Constants.TAB);
                 }

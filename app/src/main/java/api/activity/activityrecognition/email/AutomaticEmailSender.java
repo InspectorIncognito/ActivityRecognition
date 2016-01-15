@@ -1,12 +1,19 @@
 package api.activity.activityrecognition.email;
 
+import android.app.Activity;
 import android.content.Context;
+import android.net.ConnectivityManager;
+import android.net.NetworkInfo;
 import android.os.AsyncTask;
+import android.util.Log;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.Properties;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 import javax.activation.DataHandler;
 import javax.activation.DataSource;
@@ -23,17 +30,43 @@ import javax.mail.internet.MimeBodyPart;
 import javax.mail.internet.MimeMessage;
 import javax.mail.internet.MimeMultipart;
 
+import api.activity.activityrecognition.MainActivity;
 import api.activity.activityrecognition.R;
+import api.activity.activityrecognition.fragments.dialog.WarningDialog;
+import api.activity.activityrecognition.utils.Constants;
 
 public class AutomaticEmailSender {
 
-    public static void sendEmail(final Context context, final String username, final String password) {
+    private static final String TAG = "EmailSender";
+
+    public static void sendEmail(final Context context, final String username, final String password, boolean wait) {
         class SendEmailAsyncTask extends AsyncTask<Void, Integer, String> {
 
             private String host = "smtp.gmail.com";
+            final Activity activity = (MainActivity)context;
 
             @Override
             protected String doInBackground(Void... params) {
+
+                ConnectivityManager connManager =
+                        (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+
+                NetworkInfo activeNetwork = connManager.getActiveNetworkInfo();
+
+                if(activeNetwork == null) {
+                    Log.e(TAG, "No network found");
+                    WarningDialog.newInstance(context.getString(R.string.error_no_network_available_ES))
+                            .show(activity.getFragmentManager(), "network error");
+                    return null;
+                }
+
+                    /*use only WiFi*/
+                if (activeNetwork.getType() != ConnectivityManager.TYPE_WIFI) {
+                    Log.e(TAG, "WiFi is not turned on");
+                    WarningDialog.newInstance(context.getString(R.string.error_not_connected_wifi_ES))
+                            .show(activity.getFragmentManager(), "no WiFi");
+                    return null;
+                }
 
                 /* using gmail smtp service */
                 Properties props = System.getProperties();
@@ -110,6 +143,20 @@ public class AutomaticEmailSender {
                 return null;
             }
         }
-        new SendEmailAsyncTask().execute();
+
+        if(wait) {
+            Log.d(TAG, "Waiting for task");
+            try {
+                new SendEmailAsyncTask().execute().get(Constants.TASK_WAITING_TIMEOUT, TimeUnit.MILLISECONDS);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            } catch (ExecutionException e) {
+                e.printStackTrace();
+            } catch (TimeoutException e) {
+                e.printStackTrace();
+            }
+        }
+        else
+            new SendEmailAsyncTask().execute();
     }
 }

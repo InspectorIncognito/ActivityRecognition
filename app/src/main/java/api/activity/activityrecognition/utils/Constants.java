@@ -24,6 +24,7 @@ public final class Constants {
     public static final int SEND_TO_SERVER_INTERVAL = 30 * 60 * 1000; //30 minutes in milliseconds
     public static final int LOCATION_REQUESTS_INTERVAL = 10000;
     public static final int LOCATION_REQUESTS_FASTEST_INTERVAL = 5000;
+    public static final long TASK_WAITING_TIMEOUT = 2000;
 
     public static final ArrayList<Integer> MEASUREMENT_INTERVALS_MILLIS = new ArrayList<>(Arrays.asList(
             0,
