@@ -1,8 +1,13 @@
 package api.activity.activityrecognition;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.Intent;
-import android.support.v7.app.AppCompatActivity;
+import android.content.IntentFilter;
 import android.os.Bundle;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -12,10 +17,15 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import java.io.File;
+import java.io.IOException;
 
 import api.activity.activityrecognition.email.AutomaticEmailSender;
+import api.activity.activityrecognition.receivers.HeuristicsReceiver;
+import api.activity.activityrecognition.receivers.NotificationReceiver;
 import api.activity.activityrecognition.services.DetectionService;
+import api.activity.activityrecognition.services.FileAccessingIntentService;
 import api.activity.activityrecognition.services.UserInputIntentService;
+import api.activity.activityrecognition.utils.Constants;
 import api.activity.activityrecognition.utils.Functions;
 
 public class MainActivity extends AppCompatActivity {
@@ -23,7 +33,7 @@ public class MainActivity extends AppCompatActivity {
     //private int selectedInterval;
     //private UpdateReceiver updateReceiver;
     private boolean wasLogSent;
-    private Intent measurementService;
+    private int notificationId;
     private Button saveButton;
     private Button sendByEmailButton;
     private Button exitButton;
@@ -32,12 +42,16 @@ public class MainActivity extends AppCompatActivity {
     private EditText customActivityText;
     private RadioButton otherRadioButton;
     private RadioGroup radioGroup;
+    private Intent measurementService;
+    private HeuristicsReceiver heuristicsReceiver;
+    public NotificationCompat.Builder mBuilder;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
         wasLogSent = false;
+        notificationId = 0;
 
         //selectedInterval = -1;
 
@@ -50,12 +64,24 @@ public class MainActivity extends AppCompatActivity {
                         .show(getFragmentManager(), "settings");
             }
         });*/
+        /*settingsButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                File f = new File(getFilesDir() + File.separator + getString(R.string.activity_log_filename));
+                f.delete();
+                try {
+                    f.createNewFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        });*/
 
         /* BUTTON NOT USED ANYMORE
          * NOT REMOVED JUST IN CASE */
-        settingsButton.setEnabled(false);
-        settingsButton.setFocusable(false);
-        settingsButton.setVisibility(View.GONE);
+        //settingsButton.setEnabled(false);
+        //settingsButton.setFocusable(false);
+        //settingsButton.setVisibility(View.GONE);
 
         /* disabled temporarily for screen space issues */
         activityText = (TextView) findViewById(R.id.currentActivityTextView);
@@ -162,7 +188,7 @@ public class MainActivity extends AppCompatActivity {
         });
 
         /* default text for activity textview */
-        changeText(4);
+        //changeText(4);
 
         /* starts the detection service */
         measurementService = new Intent(this, DetectionService.class);
@@ -173,6 +199,39 @@ public class MainActivity extends AppCompatActivity {
         /*updateReceiver = new UpdateReceiver(this);
         LocalBroadcastManager.getInstance(this)
                 .registerReceiver(updateReceiver, new IntentFilter(Constants.BROADCAST_ACTIVITY_UPDATE));*/
+
+        /* broadcast receiver used to get updates on activity and location changes */
+        heuristicsReceiver = new HeuristicsReceiver(this);
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Constants.BROADCAST_LOCATION_UPDATE);
+        filter.addAction(Constants.BROADCAST_ACTIVITY_UPDATE);
+        LocalBroadcastManager.getInstance(this)
+                .registerReceiver(heuristicsReceiver, filter);
+
+        /* notification sent when the app detects a possible change of state from
+        being on foot to getting on a moving vehicle
+         */
+        Intent affirmativeNotificationIntent = new Intent(this, NotificationReceiver.class);
+        affirmativeNotificationIntent.putExtra("textToLog", getString(R.string.notification_affirmative_ES));
+        affirmativeNotificationIntent.putExtra("notificationId", notificationId);
+
+        Intent negativeNotificationIntent = new Intent(this, NotificationReceiver.class);
+        negativeNotificationIntent.putExtra("textToLog", getString(R.string.notification_negative_ES));
+        negativeNotificationIntent.putExtra("notificationId", notificationId);
+
+        PendingIntent affirmativeNotificationPendingIntent =
+                PendingIntent.getBroadcast(this, 0, affirmativeNotificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        PendingIntent negativeNotificationPendingIntent =
+                PendingIntent.getBroadcast(this, 1, negativeNotificationIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        mBuilder = new NotificationCompat.Builder(this)
+                .setSmallIcon(R.mipmap.ic_launcher_transapp)
+                .setContentTitle(getString(R.string.notification_title_ES))
+                .setContentText(getString(R.string.info_getting_on_bus_ES))
+                .setVibrate(new long[] { 1000, 1000, 1000, 1000, 1000 })
+                .addAction(R.mipmap.ic_true, getString(R.string.notification_affirmative_ES), affirmativeNotificationPendingIntent)
+                .addAction(R.mipmap.ic_false, getString(R.string.notification_negative_ES), negativeNotificationPendingIntent);
     }
 
     /* broadcast receiver used to receive notifications about activity changes detected
@@ -207,6 +266,7 @@ public class MainActivity extends AppCompatActivity {
     public void onDestroy(){
         super.onDestroy();
         //LocalBroadcastManager.getInstance(this).unregisterReceiver(updateReceiver);
+        //LocalBroadcastManager.getInstance(this).unregisterReceiver(heuristicsReceiver);
         //stopService(measurementService);
     }
 
@@ -214,6 +274,7 @@ public class MainActivity extends AppCompatActivity {
     protected void onStop() {
         super.onStop();
         //LocalBroadcastManager.getInstance(this).unregisterReceiver(updateReceiver);
+        //LocalBroadcastManager.getInstance(this).unregisterReceiver(heuristicsReceiver);
         //stopService(measurementService);
         //cleanUp();
     }

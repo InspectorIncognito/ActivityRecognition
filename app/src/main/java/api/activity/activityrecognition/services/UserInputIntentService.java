@@ -3,14 +3,7 @@ package api.activity.activityrecognition.services;
 import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 
-import java.io.BufferedReader;
-import java.io.BufferedWriter;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.text.DateFormat;
 import java.util.Date;
 
@@ -19,6 +12,8 @@ import api.activity.activityrecognition.utils.Constants;
 
 /**
  * Created by brahim on 13-01-16.
+ *
+ * IntentService used to receive and handle the user input, and send it to the file writing service
  */
 public class UserInputIntentService extends IntentService {
 
@@ -47,27 +42,8 @@ public class UserInputIntentService extends IntentService {
         sb.append(Constants.TAB);
         sb.append(activity);
 
-        try {
-            BufferedWriter bw = new BufferedWriter( new FileWriter(
-                    getFilesDir() + File.separator + getString(R.string.activity_log_filename), true));
-
-            bw.write(sb.toString());
-            bw.newLine();
-
-            bw.close();
-
-
-            BufferedReader br = new BufferedReader(new FileReader(
-                    new File(getFilesDir() + File.separator + getString(R.string.activity_log_filename))));
-            String line = "";
-
-            while((line = br.readLine()) != null)
-                Log.e(TAG, line);
-
-            br.close();
-
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Intent fileIntent = new Intent(this, FileAccessingIntentService.class);
+        fileIntent.putExtra("textToLog", sb.toString().trim());
+        startService(fileIntent);
     }
 }

@@ -42,9 +42,13 @@
         </service>
 
         <service
-            android:name=".services.FileAccesingService"
+            android:name=".services.FileAccessingIntentService"
             android:exported="false">
         </service>
+
+        <receiver
+            android:name=".receivers.NotificationReceiver">
+        </receiver>
 
     </application>
 

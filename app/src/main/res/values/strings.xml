@@ -14,8 +14,15 @@
     <string name="activity_log_base_text">User indicated current activity: %1$s</string>
     <string name="activity_log_error">Error: No available data</string>
 
+    <!-- Notification strings -->
+    <string name="notification_title_ES">Subida</string>
+    <string name="notification_affirmative_ES">Cierto</string>
+    <string name="notification_negative_ES">Falso</string>
+
     <!-- Info strings -->
     <string name="info_dialog_message">Por favor espere mientras la aplicación se cierra</string>
+    <string name="info_getting_on_bus">You have probably gotten on a vehicle</string>
+    <string name="info_getting_on_bus_ES">Parece que te subiste a un vehículo</string>
 
     <!-- Error/Warning strings -->
     <string name="warn_no_location_found">No valid location detected</string>

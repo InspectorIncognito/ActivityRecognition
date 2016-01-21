@@ -1,16 +1,14 @@
 package api.activity.activityrecognition.services;
 
-import android.app.Service;
+import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
-import java.io.BufferedReader;
 import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 
@@ -18,10 +16,16 @@ import api.activity.activityrecognition.R;
 
 /**
  * Created by brahim on 13-01-16.
+ *
+ * IntentService used to access and write to the log file of this app
  */
-public class FileAccesingService extends Service{
+public class FileAccessingIntentService extends IntentService {
 
-    private final String TAG = "FileAccesingService";
+    private static final String TAG = "FileAccessingService";
+
+    public FileAccessingIntentService() {
+        super(TAG);
+    }
 
     @Nullable
     @Override
@@ -30,12 +34,7 @@ public class FileAccesingService extends Service{
     }
 
     @Override
-    public void onCreate(){
-        super.onCreate();
-    }
-
-    @Override
-    public int onStartCommand(Intent intent, int flags, int startId){
+    protected void onHandleIntent(Intent intent) {
         String textToLog = "";
         Bundle bundle = intent.getExtras();
 
@@ -56,20 +55,17 @@ public class FileAccesingService extends Service{
 
             bw.close();
 
-            BufferedReader br = new BufferedReader(new FileReader(
-                    new File(getFilesDir() + File.separator + getString(R.string.activity_log_filename))));
-            String line = "";
+            Log.e(TAG, textToLog);
 
-            while((line = br.readLine()) != null)
-                Log.e(TAG, line);
-
-            br.close();
 
         }catch (IOException e) {
             e.printStackTrace();
         }
+    }
 
-        return START_NOT_STICKY;
+    @Override
+    public void onCreate(){
+        super.onCreate();
     }
 
     @Override

@@ -19,6 +19,7 @@ import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationServices;
 
 import api.activity.activityrecognition.utils.Constants;
+import api.activity.activityrecognition.utils.GlobalVariables;
 
 public class DetectionService extends Service
         implements GoogleApiClient.
@@ -28,13 +29,16 @@ public class DetectionService extends Service
 
     protected String TAG;
 
-    protected GoogleApiClient mGoogleApiClient;
+    private GoogleApiClient mGoogleApiClient;
     private LocationRequest mLocationRequest;
+    private GlobalVariables mGlobalVariables;
 
     @Override
     public void onCreate(){
         super.onCreate();
         TAG = "DetectionService";
+
+        mGlobalVariables = GlobalVariables.getInstance();
 
         buildGoogleApiClient();
         mGoogleApiClient.connect();
@@ -55,9 +59,9 @@ public class DetectionService extends Service
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
         pauseService();
         stopSelf();
+        super.onDestroy();
         Log.d(TAG, "onDestroy");
     }
 
@@ -121,6 +125,8 @@ public class DetectionService extends Service
         Log.i(TAG, "Connected to GoogleApiClient");
         startActivityUpdates();
         createLocationRequest();
+        mGlobalVariables.setGoogleApiClient(mGoogleApiClient);
+        mGlobalVariables.setLocationRequest(mLocationRequest);
         startLocationUpdates();
     }
 

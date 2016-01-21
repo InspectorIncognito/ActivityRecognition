@@ -35,6 +35,21 @@ import api.activity.activityrecognition.R;
 import api.activity.activityrecognition.fragments.dialog.WarningDialog;
 import api.activity.activityrecognition.utils.Constants;
 
+/**
+ * Created by brahim on 13-01-16.
+ *
+ * This class is an automated email sender, which uses the Gmail smtp to send an email from an
+ * account to a single recipient.
+
+ * The account is specified by the parameters provided to the only method in this class, in which
+ * username corresponds to the local part of an email, meaning the segment before the "@" symbol.
+ *
+ * The boolean flag "wait" indicates if its necessary for the calling thread to wait (for an amount
+ * of TASK_WAITING_TIMEOUT milliseconds) until the AsyncTask that sends the email finishes.
+ * Useful for sending the email before terminating the app, but it causes the calling thread to
+ * freeze, so it should not be called on the main app thread.
+ */
+
 public class AutomaticEmailSender {
 
     private static final String TAG = "EmailSender";
