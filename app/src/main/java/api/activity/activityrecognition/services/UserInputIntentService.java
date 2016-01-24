@@ -4,9 +4,6 @@ import android.app.IntentService;
 import android.content.Intent;
 import android.os.Bundle;
 
-import java.text.DateFormat;
-import java.util.Date;
-
 import api.activity.activityrecognition.R;
 import api.activity.activityrecognition.utils.Constants;
 
@@ -32,18 +29,13 @@ public class UserInputIntentService extends IntentService {
             if(bundle.containsKey("activity"))
                 activity = bundle.getString("activity");
             else
-                activity = getString(R.string.activity_log_error);
+                activity = getString(R.string.log_error);
         }
 
-        StringBuilder sb = new StringBuilder();
-
-        String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
-        sb.append(currentDateTimeString);
-        sb.append(Constants.TAB);
-        sb.append(activity);
-
         Intent fileIntent = new Intent(this, FileAccessingIntentService.class);
-        fileIntent.putExtra("textToLog", sb.toString().trim());
+        fileIntent.putExtra("textToLog",
+                getString(R.string.log_user_tag) + Constants.TAB + activity);
+
         startService(fileIntent);
     }
 }

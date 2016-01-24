@@ -1,7 +1,8 @@
 package api.activity.activityrecognition;
 
-import android.app.Notification;
 import android.app.PendingIntent;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Bundle;
@@ -17,13 +18,11 @@ import android.widget.RadioGroup;
 import android.widget.TextView;
 
 import java.io.File;
-import java.io.IOException;
 
 import api.activity.activityrecognition.email.AutomaticEmailSender;
 import api.activity.activityrecognition.receivers.HeuristicsReceiver;
 import api.activity.activityrecognition.receivers.NotificationReceiver;
 import api.activity.activityrecognition.services.DetectionService;
-import api.activity.activityrecognition.services.FileAccessingIntentService;
 import api.activity.activityrecognition.services.UserInputIntentService;
 import api.activity.activityrecognition.utils.Constants;
 import api.activity.activityrecognition.utils.Functions;
@@ -31,7 +30,6 @@ import api.activity.activityrecognition.utils.Functions;
 public class MainActivity extends AppCompatActivity {
 
     //private int selectedInterval;
-    //private UpdateReceiver updateReceiver;
     private boolean wasLogSent;
     private int notificationId;
     private Button saveButton;
@@ -39,10 +37,13 @@ public class MainActivity extends AppCompatActivity {
     private Button exitButton;
     private ImageButton settingsButton;
     private TextView activityText;
+    private TextView accuracyText;
+    private TextView speedText;
     private EditText customActivityText;
     private RadioButton otherRadioButton;
     private RadioGroup radioGroup;
     private Intent measurementService;
+    private UpdateReceiver updateReceiver;
     private HeuristicsReceiver heuristicsReceiver;
     public NotificationCompat.Builder mBuilder;
 
@@ -85,9 +86,11 @@ public class MainActivity extends AppCompatActivity {
 
         /* disabled temporarily for screen space issues */
         activityText = (TextView) findViewById(R.id.currentActivityTextView);
-        activityText.setEnabled(false);
-        activityText.setFocusable(false);
-        activityText.setVisibility(View.GONE);
+        accuracyText = (TextView) findViewById(R.id.currentAccuracyTextView);
+        speedText = (TextView) findViewById(R.id.currentSpeedTextView);
+        //activityText.setEnabled(false);
+        //activityText.setFocusable(false);
+        //activityText.setVisibility(View.GONE);
 
         /* closes the application, killing its background processes */
         exitButton = (Button) findViewById(R.id.exitAppButton);
@@ -159,36 +162,39 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 int selected = radioGroup.getCheckedRadioButtonId();
 
-                switch(selected){
+                switch (selected) {
                     case R.id.otherRadioButton:
                         activity = customActivityText.getText().toString();
                         customActivityText.setText("");
                         break;
                     case R.id.stillRadioButton:
-                        activity = "still";
+                        activity = "Still";
                         break;
                     case R.id.walkingRadioButton:
-                        activity = "walking";
+                        activity = "Walking";
                         break;
                     case R.id.gettingOnVehicleRadioButton:
-                        activity = "getting on vehicle";
+                        activity = "Getting on vehicle";
                         break;
                     case R.id.onVehicleRadioButton:
-                        activity = "on vehicle";
+                        activity = "In a vehicle";
                         break;
                     case R.id.gettingOffVehicleRadioButton:
-                        activity = "getting off vehicle";
+                        activity = "Getting off vehicle";
                 }
 
                 Intent userIntent = new Intent(MainActivity.this, UserInputIntentService.class);
-                logText = String.format(getString(R.string.activity_log_base_text), activity);
-                userIntent.putExtra("activity", logText);
+                //logText = String.format(getString(R.string.activity_log_base_text), activity);
+                //userIntent.putExtra("activity", logText);
+                userIntent.putExtra("activity", activity);
                 startService(userIntent);
             }
         });
 
         /* default text for activity textview */
-        //changeText(4);
+        changeText(activityText, 4);
+        accuracyText.setText(getString(R.string.text_activity_accuracy_short, 0));
+        speedText.setText(getString(R.string.text_activity_speed_short, 0));
 
         /* starts the detection service */
         measurementService = new Intent(this, DetectionService.class);
@@ -196,27 +202,30 @@ public class MainActivity extends AppCompatActivity {
 
         /* updates the UI whenever an activity change occurs
         * NOT USED FOR NOW*/
-        /*updateReceiver = new UpdateReceiver(this);
+        updateReceiver = new UpdateReceiver(this);
+        IntentFilter updateFilter = new IntentFilter();
+        updateFilter.addAction(Constants.BROADCAST_GUI_ACTIVITY_UPDATE);
+        updateFilter.addAction(Constants.BROADCAST_GUI_LOCATION_UPDATE);
         LocalBroadcastManager.getInstance(this)
-                .registerReceiver(updateReceiver, new IntentFilter(Constants.BROADCAST_ACTIVITY_UPDATE));*/
+                .registerReceiver(updateReceiver, updateFilter);
 
         /* broadcast receiver used to get updates on activity and location changes */
         heuristicsReceiver = new HeuristicsReceiver(this);
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(Constants.BROADCAST_LOCATION_UPDATE);
-        filter.addAction(Constants.BROADCAST_ACTIVITY_UPDATE);
+        IntentFilter heuristicsFilter = new IntentFilter();
+        heuristicsFilter.addAction(Constants.BROADCAST_LOCATION_UPDATE);
+        heuristicsFilter.addAction(Constants.BROADCAST_ACTIVITY_UPDATE);
         LocalBroadcastManager.getInstance(this)
-                .registerReceiver(heuristicsReceiver, filter);
+                .registerReceiver(heuristicsReceiver, heuristicsFilter);
 
         /* notification sent when the app detects a possible change of state from
         being on foot to getting on a moving vehicle
          */
         Intent affirmativeNotificationIntent = new Intent(this, NotificationReceiver.class);
-        affirmativeNotificationIntent.putExtra("textToLog", getString(R.string.notification_affirmative_ES));
+        affirmativeNotificationIntent.putExtra("textToLog", getString(R.string.notification_affirmative_answer));
         affirmativeNotificationIntent.putExtra("notificationId", notificationId);
 
         Intent negativeNotificationIntent = new Intent(this, NotificationReceiver.class);
-        negativeNotificationIntent.putExtra("textToLog", getString(R.string.notification_negative_ES));
+        negativeNotificationIntent.putExtra("textToLog", getString(R.string.notification_negative_answer));
         negativeNotificationIntent.putExtra("notificationId", notificationId);
 
         PendingIntent affirmativeNotificationPendingIntent =
@@ -236,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
 
     /* broadcast receiver used to receive notifications about activity changes detected
     * NOT USED FOR NOW*/
-    /*private static class UpdateReceiver extends BroadcastReceiver {
+    private static class UpdateReceiver extends BroadcastReceiver {
 
         private MainActivity mainActivity;
 
@@ -247,15 +256,31 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onReceive(Context context, Intent intent) {
             Bundle bundle = intent.getExtras();
-            int confidence = bundle.getInt("confidence");
-            int activityType = bundle.getInt("most_probable");
-            mainActivity.changeText(activityType);
+
+            if(intent.getAction().equals(Constants.BROADCAST_GUI_ACTIVITY_UPDATE)) {
+                int activityType = bundle.getInt("most_probable");
+                int confidence = bundle.getInt("confidence");
+                mainActivity.changeText(mainActivity.activityText, activityType);
+                mainActivity.accuracyText.setText(
+                        mainActivity.getString(R.string.text_activity_accuracy_short, confidence)
+                );
+            }
+
+            if(intent.getAction().equals(Constants.BROADCAST_GUI_LOCATION_UPDATE)){
+                double speed = bundle.getDouble("speed");
+                mainActivity.speedText.setText(
+                        mainActivity.getString(R.string.text_activity_speed_short, Math.round(speed))
+                );
+            }
         }
-    }*/
+    }
 
     /* sends the remaining log file when the app terminates */
     private void cleanUp(){
-        File f = new File(getFilesDir() + File.separator + getString(R.string.activity_log_filename));
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(updateReceiver);
+        LocalBroadcastManager.getInstance(this).unregisterReceiver(heuristicsReceiver);
+
+        File f = new File(getFilesDir() + File.separator + getString(R.string.log_filename));
 
         if(wasLogSent && f.exists() && f.length() != 0){
             f.delete();
@@ -280,8 +305,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     /* changes the text of the activityText TextView to reflect changes in activity */
-    public void changeText(int activityType){
-        activityText.setText(getString(R.string.text_activity_display,
-                Functions.getActivityStringInSpanish(this, activityType)));
+    public void changeText(TextView tv, int value){
+        tv.setText(getString(R.string.text_activity_display_short,
+                Functions.getActivityStringInSpanish(this, value)));
     }
 }

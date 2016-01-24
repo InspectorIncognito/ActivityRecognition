@@ -5,7 +5,9 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 
+import api.activity.activityrecognition.R;
 import api.activity.activityrecognition.services.FileAccessingIntentService;
+import api.activity.activityrecognition.utils.Constants;
 
 /**
  * Created by brahim on 21-01-16.
@@ -27,8 +29,13 @@ public class NotificationReceiver extends BroadcastReceiver{
         Intent closeTrayIntent = new Intent(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
         context.sendBroadcast(closeTrayIntent);
 
+
         Intent fileIntent = new Intent(context, FileAccessingIntentService.class);
-        fileIntent.putExtra("textToLog", intent.getStringExtra("textToLog"));
+        fileIntent.putExtra("textToLog",
+                context.getString(R.string.log_notification_tag)
+                        + Constants.TAB
+                        + intent.getStringExtra("textToLog"));
+
         context.startService(fileIntent);
     }
 }

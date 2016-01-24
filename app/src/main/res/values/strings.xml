@@ -9,15 +9,21 @@
     <string name="server_address">http://127.0.0.1:8000</string>
     <string name="server_file_destination">/android/receiveFile/</string>
 
-    <!-- Misc strings -->
-    <string name="activity_log_filename">ActivityLog</string>
-    <string name="activity_log_base_text">User indicated current activity: %1$s</string>
-    <string name="activity_log_error">Error: No available data</string>
+    <!-- Log file strings -->
+    <string name="log_filename">ActivityLog</string>
+    <string name="log_base_text">User indicated current activity: %1$s</string>
+    <string name="log_error">Error: No available data</string>
+    <string name="log_user_tag">USER</string>
+    <string name="log_activity_tag">ACT</string>
+    <string name="log_location_tag">LOC</string>
+    <string name="log_notification_tag">NOT</string>
 
     <!-- Notification strings -->
     <string name="notification_title_ES">Subida</string>
     <string name="notification_affirmative_ES">Cierto</string>
     <string name="notification_negative_ES">Falso</string>
+    <string name="notification_affirmative_answer">Answer,True</string>
+    <string name="notification_negative_answer">Answer,False</string>
 
     <!-- Info strings -->
     <string name="info_dialog_message">Por favor espere mientras la aplicación se cierra</string>
@@ -42,6 +48,9 @@
     <string name="text_button_settings">Ajustes</string>
     <string name="text_button_exit">Terminar Servicio</string>
     <string name="text_activity_display">Actualmente te encuentras %1$s</string>
+    <string name="text_activity_display_short">Act: %1$s</string>
+    <string name="text_activity_accuracy_short">Acc: %1$s</string>
+    <string name="text_activity_speed_short">Spd: %1$s m/s</string>
     <string name="radio_description_still">Detenido</string>
     <string name="radio_description_walking">Caminando</string>
     <string name="radio_description_getting_on_vehicle">Subiendo a vehículo</string>

@@ -19,7 +19,8 @@ public final class Constants {
 
     public static final String BROADCAST_LOCATION_UPDATE = "UPDATE_LOCATION_CHECK";
     public static final String BROADCAST_ACTIVITY_UPDATE = "UPDATE_ACTIVITY_CHECK";
-    //public static final String BROADCAST_ACTIVITY_UPDATE = "UPDATE_ACTIVITY_TEXTVIEW";
+    public static final String BROADCAST_GUI_ACTIVITY_UPDATE = "UPDATE_GUI_ACTIVITY";
+    public static final String BROADCAST_GUI_LOCATION_UPDATE = "UPDATE_GUI_LOCATION";
     public static final String SECOND_SINGULAR_STRING = "segundo";
     public static final String SECOND_PLURAL_STRING = "segundos";
     public static final String MINUTE_SINGULAR_STRING = "minuto";
@@ -35,16 +36,16 @@ public final class Constants {
     this app can handle location change updates*/
     public static final int LOCATION_REQUESTS_FASTEST_INTERVAL = 5000;
 
-    /* approximate speed in meters per second of Transantiago buses,
-    converted from an 14 km/hr average speed */
-    public static final int AVERAGE_BUS_SPEED = 4;
+    /* approximate speed (in meters per second) of Transantiago buses,
+    converted from an 25 km/hr average speed */
+    public static final int AVERAGE_BUS_SPEED = 7;
 
     /* minimum confidence value for an activity change to be considered the current activity */
     public static final int MIN_CONFIDENCE = 75;
 
     /* minimum amount of times the same activity has to be measured in a row in order for it to be
      considered the current activity*/
-    public static final int MIN_ACTIVITY_REPETITIONS = 2;
+    public static final int MIN_ACTIVITY_REPETITIONS = 3;
 
     /* minimum amount of times the same speed has to be measured in a row in order for it to be
     considered the current speed */
@@ -55,7 +56,7 @@ public final class Constants {
 
     /* minimum amount of time to wait before considering previous activity change/speed
     measurements not valid for the vehicle detection */
-    public static final long MAX_DELAY = 30000;
+    public static final long MAX_DELAY = 25000;
 
     public static final ArrayList<Integer> MEASUREMENT_INTERVALS_MILLIS = new ArrayList<>(Arrays.asList(
             0,

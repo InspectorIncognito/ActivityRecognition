@@ -11,8 +11,13 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 
 import api.activity.activityrecognition.R;
+import api.activity.activityrecognition.utils.Constants;
 
 /**
  * Created by brahim on 13-01-16.
@@ -42,21 +47,28 @@ public class FileAccessingIntentService extends IntentService {
             if(bundle.containsKey("textToLog"))
                 textToLog = bundle.getString("textToLog");
             else
-                textToLog = getString(R.string.activity_log_error);
+                textToLog = getString(R.string.log_error);
         }
 
         try {
 
-            BufferedWriter bw = new BufferedWriter(new FileWriter(
-                    getFilesDir() + File.separator + getString(R.string.activity_log_filename), true));
+            String line = "";
 
-            bw.write(textToLog);
+            BufferedWriter bw = new BufferedWriter(new FileWriter(
+                    getFilesDir() + File.separator + getString(R.string.log_filename), true));
+
+            DateFormat dateFormat = new SimpleDateFormat("dd/MM/yy HH:mm:ss", Locale.US);
+
+            line += dateFormat.format(new Date());
+            line += Constants.TAB;
+            line += textToLog;
+
+            bw.write(line);
             bw.newLine();
 
             bw.close();
 
-            Log.e(TAG, textToLog);
-
+            Log.d(TAG, line);
 
         }catch (IOException e) {
             e.printStackTrace();

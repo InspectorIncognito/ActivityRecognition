@@ -11,8 +11,6 @@ import com.google.android.gms.location.LocationResult;
 
 import java.io.File;
 import java.io.IOException;
-import java.text.DateFormat;
-import java.util.Date;
 import java.util.concurrent.TimeUnit;
 
 import api.activity.activityrecognition.R;
@@ -34,13 +32,13 @@ public class DetectedActivitiesIntentService extends IntentService {
     @Override
     public void onCreate() {
         super.onCreate();
-        logName = getString(R.string.activity_log_filename);
+        logName = getString(R.string.log_filename);
         mGlobalVariables = GlobalVariables.getInstance();
     }
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        //Log.e(TAG, "--------------------begin measurement--------------------");
+        //Log.d(TAG, "--------------------begin measurement--------------------");
 
         try {
             boolean didSomething = false;
@@ -54,14 +52,12 @@ public class DetectedActivitiesIntentService extends IntentService {
             /* Log format:
              day/month/year hour:minutes:seconds \t activity1-confidence1 \t activity2- ...... \n */
 
-            /* date and time of the current measurement */
-
-            String currentDateTimeString = DateFormat.getDateTimeInstance().format(new Date());
-            sb.append(currentDateTimeString);
-            sb.append(Constants.TAB);
             long currentTime = System.currentTimeMillis();
 
             if(ActivityRecognitionResult.hasResult(intent)) {
+
+                sb.append(getString(R.string.log_activity_tag));
+                sb.append(Constants.TAB);
 
                 ActivityRecognitionResult activityResult = ActivityRecognitionResult.extractResult(intent);
 
@@ -74,11 +70,11 @@ public class DetectedActivitiesIntentService extends IntentService {
 
                 /* used to notify the MainActivity about activity changes
                  * in order to update the currentActivity TextView */
-                /*Intent mainIntent = new Intent();
-                mainIntent.putExtra("most_probable", activityType);
-                mainIntent.putExtra("confidence", confidence);
-                mainIntent.setAction(Constants.BROADCAST_ACTIVITY_UPDATE);
-                LocalBroadcastManager.getInstance(this).sendBroadcast(mainIntent);*/
+                Intent textIntent = new Intent();
+                textIntent.putExtra("most_probable", activityResult.getMostProbableActivity().getType());
+                textIntent.putExtra("confidence", activityResult.getMostProbableActivity().getConfidence());
+                textIntent.setAction(Constants.BROADCAST_GUI_ACTIVITY_UPDATE);
+                LocalBroadcastManager.getInstance(this).sendBroadcast(textIntent);
 
                 int activityType = activityResult.getMostProbableActivity().getType();
                 int confidence = activityResult.getMostProbableActivity().getConfidence();
@@ -96,6 +92,9 @@ public class DetectedActivitiesIntentService extends IntentService {
             }
 
             if(LocationResult.hasResult(intent)){
+
+                sb.append(getString(R.string.log_location_tag));
+                sb.append(Constants.TAB);
 
                 LocationResult locationResult = LocationResult.extractResult(intent);
 
@@ -123,23 +122,21 @@ public class DetectedActivitiesIntentService extends IntentService {
                     );
 
                     double speed = distance / TimeUnit.MILLISECONDS.toSeconds(timediff);
-                    String format;
 
                     if(speed > Constants.AVERAGE_BUS_SPEED) {
-                        format = "Probably on bus. Speed: %f m/s";
-
                         Intent mainIntent = new Intent();
                         mainIntent.setAction(Constants.BROADCAST_LOCATION_UPDATE);
                         mainIntent.putExtra("current_time", System.currentTimeMillis());
                         LocalBroadcastManager.getInstance(this).sendBroadcast(mainIntent);
                     }
-                    else
-                        format = "Below speed threshold. Speed: %f m/s";
 
-                    sb.append(Constants.NEWLINE);
-                    sb.append(DateFormat.getDateTimeInstance().format(new Date()));
                     sb.append(Constants.TAB);
-                    sb.append(String.format(format, speed));
+                    sb.append(speed);
+
+                    Intent textIntent = new Intent();
+                    textIntent.setAction(Constants.BROADCAST_GUI_LOCATION_UPDATE);
+                    textIntent.putExtra("speed", speed);
+                    LocalBroadcastManager.getInstance(this).sendBroadcast(textIntent);
                 }
 
                 mGlobalVariables.setPreviousLocation(lastLocation);
@@ -166,7 +163,7 @@ public class DetectedActivitiesIntentService extends IntentService {
             ioe.printStackTrace();
         }
 
-        //Log.e(TAG, "---------------------end measurement---------------------");
+        //Log.d(TAG, "---------------------end measurement---------------------");
     }
 
     @Override

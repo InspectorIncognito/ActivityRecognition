@@ -118,8 +118,8 @@ public class AutomaticEmailSender {
 
                     /* body text */
                     MimeBodyPart messageBodyPart = new MimeBodyPart();
-                    String file = context.getFilesDir() + File.separator + context.getString(R.string.activity_log_filename);
-                    String fileName = context.getString(R.string.activity_log_filename);
+                    String file = context.getFilesDir() + File.separator + context.getString(R.string.log_filename);
+                    String fileName = context.getString(R.string.log_filename);
                     String body = String.format(
                             context.getString(R.string.email_body),
                             context.getString(R.string.app_name));

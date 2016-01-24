@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 
 import api.activity.activityrecognition.MainActivity;
+import api.activity.activityrecognition.R;
 import api.activity.activityrecognition.services.FileAccessingIntentService;
 import api.activity.activityrecognition.utils.Constants;
 
@@ -27,10 +28,10 @@ public class HeuristicsReceiver extends BroadcastReceiver{
     private long activityTime = Long.MAX_VALUE;
     private long locationTime = Long.MAX_VALUE;
 
-    private MainActivity mainActivity;
+    private MainActivity ma;
 
     public HeuristicsReceiver(MainActivity activity){
-        mainActivity = activity;
+        ma = activity;
     }
 
     @Override
@@ -52,12 +53,18 @@ public class HeuristicsReceiver extends BroadcastReceiver{
         }
 
         if(getActivityOnBus() && getLocationOnBus()) {
-            Intent fileIntent = new Intent(mainActivity, FileAccessingIntentService.class);
-            fileIntent.putExtra("textToLog", "ON BUS");
-            mainActivity.startService(fileIntent);
             NotificationManager mNotificationManager =
-                    (NotificationManager) mainActivity.getSystemService(Context.NOTIFICATION_SERVICE);
-            mNotificationManager.notify(0, mainActivity.mBuilder.build());
+                    (NotificationManager) ma.getSystemService(Context.NOTIFICATION_SERVICE);
+            mNotificationManager.notify(0, ma.mBuilder.build());
+
+            Intent fileIntent = new Intent(ma, FileAccessingIntentService.class);
+            fileIntent.putExtra("textToLog",
+                    ma.getString(R.string.log_notification_tag)
+                            + Constants.TAB
+                            + "Status,Sent");
+
+            ma.startService(fileIntent);
+
             setActivityOnBus(false, Long.MAX_VALUE);
             setLocationOnBus(false, Long.MAX_VALUE);
         }
